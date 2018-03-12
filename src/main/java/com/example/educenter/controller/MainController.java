@@ -37,14 +37,19 @@ public class MainController {
     }
 
     @RequestMapping(value = "/loginSuccess", method = RequestMethod.GET)
-    public String loginUser(@AuthenticationPrincipal UserDetails userDetails,ModelMap map) {
+    public String loginUser(@AuthenticationPrincipal UserDetails userDetails, ModelMap map) {
         User user = ((CurrentUser) userDetails).getUser();
+        String message = "Please confirm your Email";
         if (user.getType() == UserType.STUDENT) {
-            return "redirect:/student";
+            if (user.isVerify()) {
+                return "redirect:/student";
+            }
+            map.addAttribute("message", message);
+            return "redirect:/";
         }
-
         return "redirect:/manager";
     }
+
     @RequestMapping(value = "/verify", method = RequestMethod.GET)
     public String verify(@RequestParam("token") String token, @RequestParam("email") String email) {
         User userByEmail = userRepository.findUserByEmail(email);
